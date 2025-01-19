@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecopolis - Urban Biodiversity Planner</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+</head>
+<body>
+    <header>
+        <h1>Ecopolis</h1>
+        <p>AI-Driven Urban Biodiversity Planner</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#map">GIS Visualization</a></li>
+            <li><a href="#impact">Impact Prediction</a></li>
+            <li><a href="#recommendations">Recommendations</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <!-- Overview Section -->
+        <section id="overview" class="one">
+            <h2>Overview</h2>
+            <p>Ecopolis is an AI-driven platform designed to assist urban planners in making biodiversity-conscious decisions during urban development. By leveraging Geographic Information System (GIS) data, machine learning algorithms, and actionable insights, Ecopolis predicts the potential impact of urbanization on local ecosystems. The platform helps identify key biodiversity hotspots, visualize biodiversity risks, and provide recommendations for sustainable, biodiversity-friendly urban planning practices to protect and enhance urban ecosystems.</p>
+        </section>
+
+        <!-- GIS Visualization Section -->
+        <section id="map" class="two">
+            <h2>GIS-Based Biodiversity Visualization</h2>
+            <!-- Map Container -->
+            <div id="map-container" style="height: 500px;"></div>
+        </section>
+
+        <!-- Impact Prediction Section -->
+        <section id="impact" class="three">
+            <h2>Impact Prediction</h2>
+            <p>Upload your aerial image to predict the segmentation and visualize it.</p>
+            
+            <!-- Upload form for the aerial image -->
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="file" id="image-file" accept="image/*" required>
+                <button type="button" id="upload-btn">Upload and Show Images</button>
+            </form>
+            
+            <!-- Display Original and Pre-existing Images -->
+            <div id="image-display" style="display: none; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-around;">
+                    <div>
+                        <h3>Uploaded Image</h3>
+                        <img id="original-image" src="" alt="Uploaded Image" style="max-width: 100%; max-height: 500px;">
+                    </div>
+                    <div>
+                        <h3>Segmented Image</h3>
+                        <img id="segmented-image" src="image.png" alt="Segmented Image" style="max-width: 100%; max-height: 500px;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommendations Section -->
+        <section id="recommendations" class="four">
+            <h2>Recommendations</h2>
+            <p>Based on your inputs, we provide suggestions to minimize biodiversity loss.</p>
+        </section>
+    </div>
+    <footer>
+        <p>&copy; 2025 Agglomeration. Team AG 41. Ecopolis.</p>
+    </footer>
+    <script src="script.js"></script>
+
+    <script>
+        // Initialize the map
+        const map = L.map('map-container').setView([51.505, -0.09], 13);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Example data for biodiversity hotspots (GeoJSON format)
+        const biodiversityHotspots = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-0.09, 51.505]
+                    },
+                    "properties": {
+                        "name": "Hotspot 1",
+                        "biodiversity": "High"
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [-0.1, 51.51]
+                    },
+                    "properties": {
+                        "name": "Hotspot 2",
+                        "biodiversity": "Medium"
+                    }
+                }
+            ]
+        };
+
+        // Add GeoJSON data to the map
+        L.geoJSON(biodiversityHotspots, {
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(`<strong>${feature.properties.name}</strong><br>Biodiversity: ${feature.properties.biodiversity}`);
+            }
+        }).addTo(map);
+    </script>
+</body>
+</html>
