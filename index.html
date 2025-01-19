@@ -39,13 +39,13 @@
         <section id="impact" class="three">
             <h2>Impact Prediction</h2>
             <p>Upload your aerial image to predict the segmentation and visualize it.</p>
-            
+
             <!-- Upload form for the aerial image -->
             <form id="upload-form" enctype="multipart/form-data">
                 <input type="file" id="image-file" accept="image/*" required>
                 <button type="button" id="upload-btn">Upload and Show Images</button>
             </form>
-            
+
             <!-- Display Original and Pre-existing Images -->
             <div id="image-display" style="display: none; margin-top: 20px;">
                 <div style="display: flex; justify-content: space-around;">
@@ -64,7 +64,23 @@
         <!-- Recommendations Section -->
         <section id="recommendations" class="four">
             <h2>Recommendations</h2>
-            <p>Based on your inputs, we provide suggestions to minimize biodiversity loss.</p>
+            <p>Upload an image to receive recommendations for an optimal green corridor, native vegetation, and biodiversity-friendly infrastructure.</p>
+
+            <!-- Upload form for recommendation -->
+            <form id="recommendation-form" enctype="multipart/form-data">
+                <input type="file" id="recommendation-image" accept="image/*" required>
+                <button type="button" id="recommendation-btn">Get Recommendations</button>
+            </form>
+
+            <!-- Display Recommendation Results -->
+            <div id="recommendation-results" style="display: none; margin-top: 20px;">
+                <h3>Recommendation Results:</h3>
+                <ul>
+                    <li><strong>Optimal Green Corridor: </strong><span id="green-corridor"></span>%</li>
+                    <li><strong>Native Vegetation: </strong><span id="native-vegetation"></span>%</li>
+                    <li><strong>Biodiversity-Friendly Infrastructure: </strong><span id="biodiversity-infrastructure"></span>%</li>
+                </ul>
+            </div>
         </section>
     </div>
     <footer>
@@ -73,50 +89,123 @@
     <script src="script.js"></script>
 
     <script>
-        // Initialize the map
-        const map = L.map('map-container').setView([51.505, -0.09], 13);
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initialize the map
+            const map = L.map('map-container').setView([51.505, -0.09], 13);
 
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
 
-        // Example data for biodiversity hotspots (GeoJSON format)
-        const biodiversityHotspots = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [-0.09, 51.505]
+            // Example data for biodiversity hotspots (GeoJSON format)
+            const biodiversityHotspots = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": { "type": "Point", "coordinates": [-0.09, 51.505] },
+                        "properties": { "name": "Hotspot 1", "biodiversity": "High" }
                     },
-                    "properties": {
-                        "name": "Hotspot 1",
-                        "biodiversity": "High"
+                    {
+                        "type": "Feature",
+                        "geometry": { "type": "Point", "coordinates": [-0.1, 51.51] },
+                        "properties": { "name": "Hotspot 2", "biodiversity": "Medium" }
                     }
-                },
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [-0.1, 51.51]
-                    },
-                    "properties": {
-                        "name": "Hotspot 2",
-                        "biodiversity": "Medium"
-                    }
+                ]
+            };
+
+            // Add GeoJSON data to the map
+            L.geoJSON(biodiversityHotspots, {
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup(`<strong>${feature.properties.name}</strong><br>Biodiversity: ${feature.properties.biodiversity}`);
                 }
-            ]
-        };
+            }).addTo(map);
 
-        // Add GeoJSON data to the map
-        L.geoJSON(biodiversityHotspots, {
-            onEachFeature: function (feature, layer) {
-                layer.bindPopup(`<strong>${feature.properties.name}</strong><br>Biodiversity: ${feature.properties.biodiversity}`);
-            }
-        }).addTo(map);
+            // Handle file upload for GeoJSON data
+            const uploadBtn = document.getElementById("upload-btn");
+            const gisFileInput = document.getElementById("gis-file");
+
+            uploadBtn.addEventListener("click", function () {
+                const file = gisFileInput.files[0];
+                if (!file) {
+                    alert("Please select a file to upload.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const geojsonData = JSON.parse(e.target.result);
+                        console.log("GeoJSON data loaded:", geojsonData);
+                        L.geoJSON(geojsonData).addTo(map);
+                        alert("File uploaded and data added to the map!");
+                    } catch (error) {
+                        alert("Invalid file format. Please upload a valid GeoJSON file.");
+                        console.error("Error loading GeoJSON:", error);
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            // Handle the image file upload for the Impact Prediction section
+            const uploadBtnForImpact = document.getElementById("upload-btn");
+            const imageFileInput = document.getElementById("image-file");
+            const imageDisplay = document.getElementById("image-display");
+            const originalImage = document.getElementById("original-image");
+            const segmentedImage = document.getElementById("segmented-image");
+
+            uploadBtnForImpact.addEventListener("click", function () {
+                const file = imageFileInput.files[0];
+                if (!file) {
+                    alert("Please select an image to upload.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    originalImage.src = e.target.result; // Display the uploaded image
+                    segmentedImage.src = "image.png"; // Display pre-existing segmented image
+
+                    // Show the image display section
+                    imageDisplay.style.display = "block";
+                };
+                reader.readAsDataURL(file); // Read the file as a Data URL for preview
+            });
+
+            // Recommendation Section: Handle image upload and generate random recommendations
+            const recommendationBtn = document.getElementById("recommendation-btn");
+            const recommendationImageInput = document.getElementById("recommendation-image");
+
+            recommendationBtn.addEventListener("click", function () {
+                const file = recommendationImageInput.files[0];
+                if (!file) {
+                    alert("Please select an image to upload.");
+                    return;
+                }
+
+                // For now, we are just logging the uploaded image
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    console.log("Uploaded recommendation image:", e.target.result);
+
+                    // Simulate model output with random numbers (between 60 and 90)
+                    const greenCorridor = Math.floor(Math.random() * (90 - 60 + 1)) + 60;
+                    const nativeVegetation = Math.floor(Math.random() * (90 - 60 + 1)) + 60;
+                    const biodiversityInfrastructure = Math.floor(Math.random() * (90 - 60 + 1)) + 60;
+
+                    // Update the UI with these values
+                    document.getElementById("green-corridor").textContent = greenCorridor;
+                    document.getElementById("native-vegetation").textContent = nativeVegetation;
+                    document.getElementById("biodiversity-infrastructure").textContent = biodiversityInfrastructure;
+
+                    // Show the recommendation results
+                    document.getElementById("recommendation-results").style.display = "block";
+                };
+                reader.readAsDataURL(file); // Read the file as a Data URL for preview
+            });
+        });
     </script>
 </body>
 </html>

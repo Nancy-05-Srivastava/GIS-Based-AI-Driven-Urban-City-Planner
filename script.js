@@ -14,25 +14,13 @@ document.addEventListener("DOMContentLoaded", function () {
         "features": [
             {
                 "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [-0.09, 51.505]
-                },
-                "properties": {
-                    "name": "Hotspot 1",
-                    "biodiversity": "High"
-                }
+                "geometry": { "type": "Point", "coordinates": [-0.09, 51.505] },
+                "properties": { "name": "Hotspot 1", "biodiversity": "High" }
             },
             {
                 "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [-0.1, 51.51]
-                },
-                "properties": {
-                    "name": "Hotspot 2",
-                    "biodiversity": "Medium"
-                }
+                "geometry": { "type": "Point", "coordinates": [-0.1, 51.51] },
+                "properties": { "name": "Hotspot 2", "biodiversity": "Medium" }
             }
         ]
     };
@@ -44,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }).addTo(map);
 
-    // Handle file upload
+    // Handle file upload for GeoJSON data
     const uploadBtn = document.getElementById("upload-btn");
     const gisFileInput = document.getElementById("gis-file");
 
@@ -70,19 +58,76 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.readAsText(file);
     });
 
+    // Handle the image file upload for the Impact Prediction section
+    const uploadBtnForImpact = document.getElementById("upload-btn");
+    const imageFileInput = document.getElementById("image-file");
+    const imageDisplay = document.getElementById("image-display");
+    const originalImage = document.getElementById("original-image");
+    const segmentedImage = document.getElementById("segmented-image");
+
+    uploadBtnForImpact.addEventListener("click", function () {
+        const file = imageFileInput.files[0];
+        if (!file) {
+            alert("Please select an image to upload.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            originalImage.src = e.target.result; // Display the uploaded image
+            segmentedImage.src = "image.png"; // Display pre-existing segmented image
+
+            // Show the image display section
+            imageDisplay.style.display = "block";
+        };
+        reader.readAsDataURL(file); // Read the file as a Data URL for preview
+    });
+
+    // Recommendation Section: Handle image upload and generate random recommendations
+    const recommendationBtn = document.getElementById("recommendation-btn");
+    const recommendationImageInput = document.getElementById("recommendation-image");
+
+    recommendationBtn.addEventListener("click", function () {
+        const file = recommendationImageInput.files[0];
+        if (!file) {
+            alert("Please select an image to upload.");
+            return;
+        }
+
+        // For now, we are just logging the uploaded image
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            console.log("Uploaded recommendation image:", e.target.result);
+
+            // Simulate model output with random numbers (between 60 and 90)
+            const greenCorridor = Math.floor(Math.random() * (90 - 60 + 1)) + 60;
+            const nativeVegetation = Math.floor(Math.random() * (90 - 60 + 1)) + 60;
+            const biodiversityInfrastructure = Math.floor(Math.random() * (90 - 60 + 1)) + 60;
+
+            // Update the UI with these values
+            document.getElementById("green-corridor").textContent = greenCorridor;
+            document.getElementById("native-vegetation").textContent = nativeVegetation;
+            document.getElementById("biodiversity-infrastructure").textContent = biodiversityInfrastructure;
+
+            // Show the recommendation results
+            document.getElementById("recommendation-results").style.display = "block";
+        };
+        reader.readAsDataURL(file); // Read the file as a Data URL for preview
+    });
+
     // Search function: Handle location search and zoom in on the result
     function searchLocation() {
-        const location = document.getElementById("location-input").value; // Get input value from search field
+        const location = document.getElementById("location-input").value;
         console.log("Searching for location:", location);
 
         if (location) {
-            const geocoder = L.Control.Geocoder.nominatim(); // Use the Nominatim geocoder
-            geocoder.geocode(location, function(results) {
+            const geocoder = L.Control.Geocoder.nominatim();
+            geocoder.geocode(location, function (results) {
                 if (results.length > 0) {
-                    const latlng = results[0].center; // Get the coordinates of the first result
-                    map.setView(latlng, 13); // Zoom to the result location
-                    const marker = L.marker(latlng).addTo(map); // Add marker to the location
-                    marker.bindPopup("Search Result").openPopup(); // Bind a popup
+                    const latlng = results[0].center;
+                    map.setView(latlng, 13);
+                    const marker = L.marker(latlng).addTo(map);
+                    marker.bindPopup("Search Result").openPopup();
                     console.log("Location found:", latlng);
                 } else {
                     alert("Location not found.");
@@ -97,14 +142,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // Event listener for search button
     const searchBtn = document.getElementById("search-btn");
     if (searchBtn) {
-        searchBtn.addEventListener("click", searchLocation); // Trigger search on button click
+        searchBtn.addEventListener("click", searchLocation);
     } else {
         console.log("Search button not found");
     }
 
     // Optional: Handle pressing "Enter" to search
     const locationInput = document.getElementById("location-input");
-    locationInput.addEventListener("keypress", function(e) {
+    locationInput.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
             searchLocation();
         }
