@@ -114,17 +114,3 @@ Ecopolis/
 Contributions are welcome! Please fork the repository and create a pull request to propose changes.
 
 ---
-
-## 🛡️ **License**
-This project is licensed under the MIT License. See `LICENSE` for more details.
-
----
-
-## 📧 **Contact**
-For any questions or feedback, reach out to:
-- **Email**: your_email@example.com
-- **GitHub Issues**: [Ecopolis Issues](https://github.com/username/ecopolis/issues)
-
----
-
-Feel free to let me know if you'd like additional adjustments or specific content added!
